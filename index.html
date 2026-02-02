@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PROTOCOL ENDERCIO. // 2026</title>
     <style>
         :root { --glow: #00ff66; --bg: #020202; }
@@ -10,22 +10,23 @@
         * { margin:0; padding:0; box-sizing:border-box; cursor: none !important; }
         body { background: var(--bg); color: var(--glow); font-family: "Courier New", monospace; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         
-        /* Efekt CRT i Retro Pasek */
+        /* CRT */
         .crt-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 9000; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02)); background-size: 100% 3px, 3px 100%; opacity: 0.3; }
         .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 100px; background: linear-gradient(0deg, rgba(0, 255, 102, 0) 0%, rgba(0, 255, 102, 0.05) 50%, rgba(0, 255, 102, 0) 100%); opacity: 0.1; pointer-events: none; z-index: 9001; animation: scan 8s linear infinite; }
         @keyframes scan { from { top: -100px; } to { top: 100%; } }
 
+        /* Cursor Fix */
         #cursor { width: 25px; height: 25px; border: 1px solid var(--glow); position: fixed; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; }
         #cursor::before { content: ''; position: absolute; width: 100%; height: 1px; background: var(--glow); }
         #cursor::after { content: ''; position: absolute; width: 1px; height: 100%; background: var(--glow); }
 
         /* Boot Screen */
         #boot-screen { position: fixed; inset: 0; background: black; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        #txt-boot-title { letter-spacing: 15px; margin-bottom: 5px; font-size: clamp(20px, 5vw, 40px); }
+        #txt-boot-title { letter-spacing: 15px; margin-bottom: 5px; font-size: 40px; }
         #txt-boot-sub { font-size: 12px; letter-spacing: 8px; margin-bottom: 40px; opacity: 0.6; }
         #boot-loader { width: 400px; font-size: 10px; margin-top: 20px; color: var(--glow); height: 150px; overflow-y: hidden; display: none; text-align: left; border-left: 1px solid var(--glow); padding-left: 10px; }
 
-        /* Main UI i Animacje wczytywania */
+        /* Main UI */
         #main-ui { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; position: relative; opacity: 0; }
         .fade-in { animation: fadeInElement 0.8s ease forwards; }
         @keyframes fadeInElement { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -36,7 +37,7 @@
         
         .panel { position: fixed; top: 60px; right: 20px; width: 340px; border: 1px solid var(--glow); background: rgba(0,0,0,0.98); padding: 15px; display: none; z-index: 1000; font-size: 11px; line-height: 1.6; }
         .wrapper { width: 90%; max-width: 900px; text-align: center; }
-        .title { font-size: clamp(25px, 6vw, 55px); font-weight: 900; letter-spacing: 12px; margin-bottom: 20px; text-shadow: 0 0 15px var(--glow); opacity: 0; }
+        .title { font-size: 55px; font-weight: 900; letter-spacing: 12px; margin-bottom: 20px; text-shadow: 0 0 15px var(--glow); opacity: 0; }
         .console { background: rgba(0,10,0,0.1); border: 1px solid var(--glow); padding: 15px; margin: 15px 0; text-align: left; font-size: 12px; height: 110px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; opacity: 0; }
         
         input { background: transparent; border: 1px solid var(--glow); color: var(--glow); padding: 12px; width: 100%; max-width: 450px; font-family: inherit; text-align: center; outline: none; font-size: 16px; border-radius: 0; opacity: 0; }
@@ -57,6 +58,19 @@
         .footer { position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 10px; opacity: 0.3; letter-spacing: 2px; }
         .shake-fx { animation: shake 0.1s infinite !important; }
         @keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(5px, 5px); } 50% { transform: translate(-5px, -5px); } 100% { transform: translate(0,0); } }
+
+        /* TYLKO NA TELEFON (Fixy mobilne) */
+        @media (max-width: 768px) {
+            #txt-boot-title { font-size: 24px; letter-spacing: 8px; }
+            .title { font-size: 32px; letter-spacing: 6px; }
+            .top-right { top: 10px; right: 10px; flex-direction: column; gap: 5px; }
+            .btn { font-size: 10px; padding: 6px 12px; }
+            .panel { width: 90vw; right: 5vw; top: 180px; }
+            #game-overlay { width: 95vw; height: 90vh; padding: 10px; }
+            .bit { padding: 10px 15px; font-size: 10px; }
+            .boss { width: 120px; height: 120px; }
+            input { font-size: 14px; }
+        }
     </style>
 </head>
 <body>
