@@ -2,159 +2,210 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>P.S.P.M.W.E. // ENDERCIO_DRIVE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROTOCOL ENDERCIO. // 2026</title>
     <style>
-        :root { --glow: #00ff66; --bg: #020202; --trans: 3s; }
+        :root { --glow: #00ff66; --bg: #020202; }
         .blood-mode { --glow: #ff0000 !important; background: #050000 !important; }
-
         * { margin:0; padding:0; box-sizing:border-box; cursor: none !important; }
+        body { background: var(--bg); color: var(--glow); font-family: "Courier New", monospace; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         
-        .crt-overlay {
-            position: fixed; inset: 0; pointer-events: none; z-index: 9000;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 3px, 3px 100%; opacity: 0.7;
-        }
+        /* Efekt CRT i Retro Pasek */
+        .crt-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 9000; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02)); background-size: 100% 3px, 3px 100%; opacity: 0.3; }
+        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 100px; background: linear-gradient(0deg, rgba(0, 255, 102, 0) 0%, rgba(0, 255, 102, 0.05) 50%, rgba(0, 255, 102, 0) 100%); opacity: 0.1; pointer-events: none; z-index: 9001; animation: scan 8s linear infinite; }
+        @keyframes scan { from { top: -100px; } to { top: 100%; } }
 
-        .glitch-bar {
-            position: fixed; top: -100px; left: 0; width: 100%; height: 50px;
-            background: rgba(255, 255, 255, 0.01); z-index: 9001; pointer-events: none;
-            animation: scan 12s linear infinite;
-        }
-        @keyframes scan { 0% { top: -100px; } 100% { top: 100%; } }
-
-        #cursor {
-            width: 25px; height: 25px; border: 1px solid var(--glow);
-            position: fixed; pointer-events: none; z-index: 99999;
-            transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center;
-        }
+        #cursor { width: 25px; height: 25px; border: 1px solid var(--glow); position: fixed; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; }
         #cursor::before { content: ''; position: absolute; width: 100%; height: 1px; background: var(--glow); }
         #cursor::after { content: ''; position: absolute; width: 1px; height: 100%; background: var(--glow); }
 
-        body {
-            background: var(--bg); color: var(--glow); font-family: "Courier New", monospace;
-            height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center;
-            transition: background var(--trans), color var(--trans);
-        }
+        /* Boot Screen */
+        #boot-screen { position: fixed; inset: 0; background: black; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #txt-boot-title { letter-spacing: 15px; margin-bottom: 5px; font-size: clamp(20px, 5vw, 40px); }
+        #txt-boot-sub { font-size: 12px; letter-spacing: 8px; margin-bottom: 40px; opacity: 0.6; }
+        #boot-loader { width: 400px; font-size: 10px; margin-top: 20px; color: var(--glow); height: 150px; overflow-y: hidden; display: none; text-align: left; border-left: 1px solid var(--glow); padding-left: 10px; }
 
-        #boot-screen { position: fixed; inset: 0; background: black; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        
-        #boot-loader { 
-            width: 400px; font-size: 10px; margin-top: 20px; color: var(--glow); 
-            height: 150px; overflow: hidden; display: none; text-align: left;
-        }
+        /* Main UI i Animacje wczytywania */
+        #main-ui { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; position: relative; opacity: 0; }
+        .fade-in { animation: fadeInElement 0.8s ease forwards; }
+        @keyframes fadeInElement { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #main-ui { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; }
-        
-        #doom-timer, .top-right, .wrapper, .footer { visibility: hidden; opacity: 0; transition: opacity 0.8s ease-in; }
-        .show { visibility: visible !important; opacity: 1 !important; }
-
-        #doom-timer { position: fixed; top: 20px; left: 20px; font-size: 18px; border: 1px solid var(--glow); padding: 5px 10px; }
         .top-right { position: fixed; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1100; }
-
-        .btn { font-size: 11px; border: 1px solid var(--glow); padding: 8px 15px; background: black; color: var(--glow); transition: 0.2s; text-transform: uppercase; cursor: none; }
+        .btn { font-size: 11px; border: 1px solid var(--glow); padding: 8px 15px; background: black; color: var(--glow); transition: 0.2s; text-transform: uppercase; }
         .btn:hover { background: var(--glow); color: black; box-shadow: 0 0 20px var(--glow); }
-
-        .panel {
-            position: fixed; top: 60px; right: 20px; width: 340px;
-            border: 1px solid var(--glow); background: rgba(0,0,0,0.98);
-            padding: 15px; display: none; z-index: 1000; font-size: 11px; line-height: 1.6;
-        }
-
+        
+        .panel { position: fixed; top: 60px; right: 20px; width: 340px; border: 1px solid var(--glow); background: rgba(0,0,0,0.98); padding: 15px; display: none; z-index: 1000; font-size: 11px; line-height: 1.6; }
         .wrapper { width: 90%; max-width: 900px; text-align: center; }
-        .title { font-size: clamp(25px, 6vw, 55px); font-weight: 900; letter-spacing: 12px; margin-bottom: 20px; text-shadow: 0 0 15px var(--glow); }
+        .title { font-size: clamp(25px, 6vw, 55px); font-weight: 900; letter-spacing: 12px; margin-bottom: 20px; text-shadow: 0 0 15px var(--glow); opacity: 0; }
+        .console { background: rgba(0,10,0,0.1); border: 1px solid var(--glow); padding: 15px; margin: 15px 0; text-align: left; font-size: 12px; height: 110px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; opacity: 0; }
+        
+        input { background: transparent; border: 1px solid var(--glow); color: var(--glow); padding: 12px; width: 100%; max-width: 450px; font-family: inherit; text-align: center; outline: none; font-size: 16px; border-radius: 0; opacity: 0; }
+        #btn-decode { opacity: 0; }
 
-        .console {
-            background: rgba(0,10,0,0.1); border: 1px solid var(--glow); padding: 15px; margin: 15px 0;
-            text-align: left; font-size: 12px; height: 110px; overflow: hidden;
-            display: flex; flex-direction: column; justify-content: flex-end;
-        }
-
-        input {
-            background: transparent; border: 1px solid var(--glow); color: var(--glow);
-            padding: 12px; width: 100%; max-width: 450px; font-family: inherit;
-            text-align: center; outline: none; font-size: 16px;
-        }
-
-        #unlocked {
-            max-height: 0; overflow: hidden;
-            border: 0px solid var(--glow); margin-top: 20px;
-            background: rgba(0,0,0,0.95); transition: max-height 2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        #unlocked { max-height: 0; overflow: hidden; border: 0px solid var(--glow); margin-top: 20px; background: rgba(0,0,0,0.95); transition: max-height 2s cubic-bezier(0.4, 0, 0.2, 1); }
         #unlocked.open { max-height: 600px; border: 1px double var(--glow); padding: 25px; }
 
-        .data-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
+        /* Game Overlay */
+        #game-overlay { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90vw; height: 80vh; background: #000; z-index: 15000; border: 2px solid var(--glow); flex-direction: column; padding: 20px; }
+        #game-stage { flex-grow: 1; position: relative; overflow: hidden; background: #050505; margin-top: 10px; border: 1px solid #222; }
+        .bit { position: absolute; padding: 15px 25px; border: 1px solid var(--glow); background: rgba(0,255,100,0.1); font-size: 12px; font-weight: bold; user-select: none; }
+        .boss { position: absolute; width: 150px; height: 150px; border: 2px solid red; background: rgba(50,0,0,0.8); color: red; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; box-shadow: 0 0 30px red; transition: all 0.2s; }
+        .hp-bar { width: 80%; height: 8px; background: #300; margin-top: 10px; border: 1px solid red; }
+        .hp-fill { height: 100%; background: red; transition: width 0.2s; }
+        #win-msg { position: absolute; inset: 0; background: black; color: var(--glow); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 200; text-align: center; border: 2px solid var(--glow); }
+        
         .footer { position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 10px; opacity: 0.3; letter-spacing: 2px; }
-
-        .shake { animation: shakeAnim 0.3s ease-in-out; }
-        @keyframes shakeAnim {
-            0% { transform: translate(0,0); }
-            25% { transform: translate(-5px, 5px); }
-            50% { transform: translate(5px, -5px); }
-            100% { transform: translate(0,0); }
-        }
+        .shake-fx { animation: shake 0.1s infinite !important; }
+        @keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(5px, 5px); } 50% { transform: translate(-5px, -5px); } 100% { transform: translate(0,0); } }
     </style>
 </head>
-<body id="body">
+<body>
 
 <div id="cursor"></div>
 <div class="crt-overlay"></div>
-<div class="glitch-bar"></div>
+<div class="scanline"></div>
 
 <div id="boot-screen">
-    <h1 id="boot-title" style="letter-spacing: 15px; margin-bottom: 10px; text-align:center;">PROTOCOL_ENDERCIO</h1>
-    <p id="boot-sub" style="font-size: 10px; opacity: 0.5; margin-bottom: 30px;"> TERMINAL</p>
-    <button id="start-trigger" class="btn" style="padding: 20px 40px;" onclick="runBootSequence()">[ ROZPOCZNIJ SESJĘ ]</button>
+    <h1 id="txt-boot-title"></h1>
+    <p id="txt-boot-sub"></p>
+    <button id="start-trigger" class="btn" style="padding: 20px 40px;" onclick="runBootSequence()"></button>
     <div id="boot-loader"></div>
 </div>
 
 <div id="main-ui">
-    <div id="doom-timer">666:00:00:00</div>
-
     <div class="top-right">
-        <button class="btn" onclick="toggle('userPanel')">[ STATUS ]</button>
-        <button class="btn" onclick="toggle('rulesPanel')">[ REGULAMIN ]</button>
+        <button id="btn-status" class="btn fade-in" style="animation-delay: 0.2s;" onclick="toggle('userPanel')"></button>
+        <button id="btn-rules" class="btn fade-in" style="animation-delay: 0.3s;" onclick="toggle('rulesPanel')"></button>
+        <button id="btn-game" class="btn fade-in" style="animation-delay: 0.4s;" onclick="openGame()"></button>
     </div>
 
     <div id="userPanel" class="panel">
-        <h3>PROFIL UŻYTKOWNIKA // DANE PRYWATNE</h3><hr style="border:0; border-top:1px solid var(--glow); margin:8px 0;">
+        <h3 id="txt-panel-user-title"></h3><hr style="border:0; border-top:1px solid var(--glow); margin:8px 0;">
         <p id="u-id"></p>
-        <p>LOKALIZACJA: NIEZNANA</p>
-        <p style="margin-top:10px; font-weight: bold;">OPERATOR: ENDERCIO</p>
-        <p id="u-threat" style="margin-top:5px; color: #00ff66;">ZAGROŻENIE: MINIMALNE</p>
-        <p id="lockout-timer" style="color:red; margin-top:10px; font-weight:bold;"></p>
+        <p id="txt-loc"></p>
+        <p id="txt-op" style="margin-top:10px; font-weight: bold;"></p>
+        <p id="u-threat" style="color: #00ff66;"></p>
     </div>
 
     <div id="rulesPanel" class="panel">
-        <h3>ZASADY P.S.P.M.W.E.</h3><hr style="border:0; border-top:1px solid var(--glow); margin:8px 0;">
-        <p>1. Wszelkie dane są własnością Endercia.</p>
-        <p>2. Nieautoryzowany dostęp skończy się błędem krytycznym.</p>
-        <p>3. <b>14.04.2026</b> - Dzień synchronizacji Archiwum.</p>
-        <p>4. To co tu zobaczysz, zostaje w terminalu.</p>
+        <h3 id="txt-panel-rules-title"></h3><hr style="border:0; border-top:1px solid var(--glow); margin:8px 0;">
+        <div id="txt-rules-content"></div>
     </div>
 
-    <div class="wrapper" id="main-wrapper">
-        <div class="title">P.S.P.M.W.E.</div>
-        <div class="console"><div id="log">> SYSTEM_ONLINE... OCZEKIWANIE NA KLUCZ...</div></div>
-        
-        <div class="input-area">
-            <input type="text" id="cmd" placeholder="PODAJ HASŁO..." autocomplete="off">
-            <button class="btn" onclick="execute()">[ DEKODUJ ]</button>
-        </div>
+    <div class="wrapper">
+        <div id="txt-main-title" class="title fade-in" style="animation-delay: 0.5s;"></div>
+        <div id="console-box" class="console fade-in" style="animation-delay: 0.7s;"><div id="log"></div></div>
+        <input type="text" id="cmd" placeholder="" autocomplete="off" class="fade-in" style="animation-delay: 0.9s;">
+        <br><br>
+        <button id="btn-decode" class="btn fade-in" style="animation-delay: 1s;" onclick="execute()"></button>
 
         <div id="unlocked">
-            <h2 style="letter-spacing: 5px; border-left: 4px solid var(--glow); padding-left: 10px; margin-bottom: 15px;">USZKODZONE_ERROR014</h2>
-            <div class="data-grid">
-                <div id="tracklist"></div>
-                <div id="core-logs" style="font-size: 10px; opacity: 0.6;"></div>
-            </div>
+            <h2 id="txt-archive-title" style="letter-spacing: 5px; border-left: 4px solid var(--glow); padding-left: 10px; margin-bottom: 15px;"></h2>
+            <div id="tracklist" style="font-size: 11px; line-height: 1.8; text-align: left;"></div>
         </div>
     </div>
+    <div id="txt-footer" class="footer"></div>
+</div>
 
-    <div class="footer">Protocol Endercio // Szyfrowanie // 2026</div>
+<div id="game-overlay">
+    <div id="win-msg">
+        <h1 id="txt-win-title" style="letter-spacing: 10px;"></h1>
+        <p id="txt-win-sub" style="margin: 20px 0;"></p>
+        <button id="btn-cont" class="btn" onclick="continueInfinite()"></button>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glow); padding-bottom: 10px;">
+        <span id="game-stats"></span>
+        <button id="btn-exit" class="btn" onclick="closeGame()"></button>
+    </div>
+    <div id="game-stage"></div>
 </div>
 
 <script>
+    const TEKSTY = {
+        bootTytul: "PROTOKÓŁ_ENDERCIO",
+        bootPodtytul: "TERMINAL",
+        bootPrzycisk: "[ ROZPOCZNIJ SESJĘ ]",
+        bootLogs: [
+            "> Łączenie z serwerem E&d#rc!0_DRIVE...",
+            "> Autoryzacja protokołu P.S.P.M.W.E...",
+            "> Ładowanie modułu audio...",
+            "> Wczytywanie bazy danych...",
+            "> 14.04.2026 - STATUS: OCZEKIWANIE.",
+            "> SYSTEM GOTOWY."
+        ],
+        przyciskStatus: "[ PROFIL ]",
+        przyciskRegulamin: "[ REGULAMIN ]",
+        przyciskGra: "[ CORRUPTED DATA ]",
+        panelUzytkownikTytul: "PROFIL UŻYTKOWNIKA // DANE PRYWATNE",
+        idSesjiEtykieta: "ID_SESJI: ",
+        lokalizacjaEtykieta: "LOKALIZACJA: NIEZNANA",
+        operatorEtykieta: "OPERATOR: ENDERCIO",
+        panelZasadyTytul: "ZASADY P.S.P.M.W.E.",
+        zasadyLista: [
+            "1. Wszelkie dane są własnością Endercia.",
+            "2. Nieautoryzowany dostęp skończy się błędem krytycznym.",
+            "3. 14.04.2026 - Dzień synchronizacji Archiwum.",
+            "4. To co tu zobaczysz, zostaje w terminalu."
+        ],
+        tytulGlowny: "P.S.P.M.W.E.",
+        inputPlaceholder: "PODAJ HASŁO...",
+        przyciskDekoduj: "[ DEKODUJ ]",
+        konsolaStart: "SYSTEM_ONLINE... OCZEKIWANIE NA KLUCZ...",
+        konsolaBlad: "BŁĄD: ODMOWA DOSTĘPU.",
+        konsolaSukces: "DOSTĘP PRZYZNANY.",
+        konsolaKrytyczny: "!! WYKRYTO PRÓBĘ ZŁAMANIA RDZENIA !!",
+        statusZagrozenieNormal: "ZAGROŻENIE: MINIMALNE",
+        statusZagrozenieKrytyczne: "ZAGROŻENIE: KRYTYCZNE",
+        archiwumTytul: "ARCHIWUM",
+        utwory: [
+            "> DISS NA MARCELINE ft. LIL SEREK",
+            "> SIĘ SPUŚCIŁEM ft. LIL SEREK",
+            "> ONA MÓWI ŻE BLE ft. LIL SEREK",
+            "> POWÓDŹ",
+            "> ONA MÓWI NA MNIE LIGHTSABER",
+            "> ZACZERPNIJ POWIETRZA",
+            "> NIE MAM ZAMIARU W TO JUŻ DŁUŻEJ GRAĆ",
+            "> B3L0W ZER0"
+        ],
+        graBitInfo: "BYTY: ",
+        graTrybInf: "TRYB: NIESKOŃCZONOŚĆ",
+        graPrzyciskWyjdz: "[ WYJDŹ ]",
+        bossNazwa: "ARCHITEKT",
+        winTytul: "SYSTEM_OBRONNY_DEZAKTYWOWANY",
+        winSubtytul: "NADCHODZĄCA EPKA:",
+        winEpNazwa: '"PROTOKÓŁ ENDERCIO AKTYWOWANY"',
+        winPrzyciskKontynuuj: "[ KONTYNUUJ ANALIZĘ ]",
+        stopka: "© 2026 Protocol Endercio // Szyfrowanie Archiwalne"
+    };
+
+    function inicjujNapisy() {
+        document.getElementById('txt-boot-title').innerText = TEKSTY.bootTytul;
+        document.getElementById('txt-boot-sub').innerText = TEKSTY.bootPodtytul;
+        document.getElementById('start-trigger').innerText = TEKSTY.bootPrzycisk;
+        document.getElementById('btn-status').innerText = TEKSTY.przyciskStatus;
+        document.getElementById('btn-rules').innerText = TEKSTY.przyciskRegulamin;
+        document.getElementById('btn-game').innerText = TEKSTY.przyciskGra;
+        document.getElementById('txt-panel-user-title').innerText = TEKSTY.panelUzytkownikTytul;
+        document.getElementById('txt-loc').innerText = TEKSTY.lokalizacjaEtykieta;
+        document.getElementById('txt-op').innerText = TEKSTY.operatorEtykieta;
+        document.getElementById('u-threat').innerText = TEKSTY.statusZagrozenieNormal;
+        document.getElementById('txt-panel-rules-title').innerText = TEKSTY.panelZasadyTytul;
+        document.getElementById('txt-main-title').innerText = TEKSTY.tytulGlowny;
+        document.getElementById('cmd').placeholder = TEKSTY.inputPlaceholder;
+        document.getElementById('btn-decode').innerText = TEKSTY.przyciskDekoduj;
+        document.getElementById('log').innerText = "> " + TEKSTY.konsolaStart;
+        document.getElementById('txt-archive-title').innerText = TEKSTY.archiwumTytul;
+        document.getElementById('txt-footer').innerText = TEKSTY.stopka;
+        document.getElementById('txt-win-title').innerText = TEKSTY.winTytul;
+        document.getElementById('txt-win-sub').innerHTML = TEKSTY.winSubtytul + '<br><span style="font-size: 24px; color:#fff;">' + TEKSTY.winEpNazwa + '</span>';
+        document.getElementById('btn-cont').innerText = TEKSTY.winPrzyciskKontynuuj;
+        document.getElementById('btn-exit').innerText = TEKSTY.graPrzyciskWyjdz;
+        const rulesBox = document.getElementById('txt-rules-content');
+        rulesBox.innerHTML = TEKSTY.zasadyLista.map(z => `<p>${z}</p>`).join('');
+    }
+
+    inicjujNapisy();
+
     const cursor = document.getElementById('cursor');
     document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
 
@@ -169,108 +220,128 @@
         o.start(); o.stop(audioCtx.currentTime+d);
     }
 
-    // SEKWENCJA BOOTOWANIA
     function runBootSequence() {
         document.getElementById('start-trigger').style.display = 'none';
         const loader = document.getElementById('boot-loader');
         loader.style.display = 'block';
-        
-        const logs = [
-            "> Łączenie z serwerem E&d#rc!0_DRIVE...",
-            "> Autoryzacja protokołu P.S.P.M.W.E...",
-            "> Deszyfrowanie sektorów 0x442 i 0x881...",
-            "> OK.",
-            "> UWAGA: Wykryto ślady poprzedniej obecności.",
-            "> Ładowanie modułu audio...",
-            "> Wczytywanie bazy danych piosenek...",
-            "> 14.04.2026 - STATUS: OCZEKIWANIE.",
-            "> SYSTEM GOTOWY. PRZEKIEROWANIE..."
-        ];
-
         let i = 0;
         const interval = setInterval(() => {
-            if(i < logs.length) {
-                const line = document.createElement('div');
-                line.innerText = logs[i];
-                loader.appendChild(line);
-                loader.scrollTop = loader.scrollHeight;
-                playSound(200 + (i*50), 'square', 0.1, 0.05);
-                i++;
+            if(i < TEKSTY.bootLogs.length) {
+                const line = document.createElement('div'); line.innerText = TEKSTY.bootLogs[i++]; loader.appendChild(line);
+                playSound(150 + (i*60), 'square', 0.1, 0.05);
             } else {
                 clearInterval(interval);
-                setTimeout(startProtocol, 500);
+                setTimeout(() => {
+                    document.getElementById('boot-screen').style.display = 'none';
+                    const ui = document.getElementById('main-ui');
+                    ui.style.display = 'flex';
+                    setTimeout(() => ui.style.opacity = "1", 50);
+                    document.getElementById('u-id').innerText = TEKSTY.idSesjiEtykieta + (Math.floor(Math.random() * 666) + 1);
+                }, 500);
             }
-        }, 250);
+        }, 300);
     }
 
-    function startProtocol() {
-        document.getElementById('boot-screen').style.display = 'none';
-        document.getElementById('main-ui').style.display = 'flex';
-        
-        setTimeout(() => { document.getElementById('doom-timer').classList.add('show'); playSound(300, 'sine', 0.05); }, 200);
-        setTimeout(() => { document.querySelector('.top-right').classList.add('show'); playSound(400, 'sine', 0.05); }, 400);
-        setTimeout(() => { document.getElementById('main-wrapper').classList.add('show'); playSound(500, 'sine', 0.05); }, 600);
-        setTimeout(() => { document.querySelector('.footer').classList.add('show'); playSound(200, 'sine', 0.1); }, 800);
-
-        document.getElementById('u-id').innerText = "ID_SESJI: " + Math.floor(Math.random() * 666 + 1);
-        setInterval(updateTimer, 1000);
-        checkLockout();
-    }
-
-    let doomSec = localStorage.getItem('pspmwe_timer_v2') ? parseInt(localStorage.getItem('pspmwe_timer_v2')) : 666 * 3600;
-    function updateTimer() {
-        doomSec--;
-        localStorage.setItem('pspmwe_timer_v2', doomSec);
-        let h = Math.floor(doomSec / 3600), m = Math.floor((doomSec % 3600) / 60), s = doomSec % 60;
-        document.getElementById('doom-timer').innerText = `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    }
-
-    function toggle(id) { 
-        playSound(150, 'triangle', 0.1);
-        const p = document.getElementById(id); 
-        p.style.display = p.style.display === 'block' ? 'none' : 'block'; 
-    }
+    function toggle(id) { playSound(150, 'triangle', 0.1); const p = document.getElementById(id); p.style.display = p.style.display === 'block' ? 'none' : 'block'; }
 
     function execute() {
-        const val = document.getElementById('cmd').value.trim();
+        const val = document.getElementById('cmd').value;
+        const threat = document.getElementById('u-threat');
         if (val === '666') {
             playSound(50, 'sawtooth', 1, 0.3);
-            document.getElementById('u-threat').innerText = "ZAGROŻENIE: KRYTYCZNE";
-            document.getElementById('u-threat').style.color = "red";
-            document.getElementById('body').classList.add('shake');
-            setTimeout(() => document.getElementById('body').classList.remove('shake'), 400);
-            addLog("!! WYKRYTO PRÓBĘ ZŁAMANIA RDZENIA !!");
+            document.body.classList.add('shake-fx');
+            threat.innerText = TEKSTY.statusZagrozenieKrytyczne;
+            threat.style.color = "red";
+            setTimeout(() => document.body.classList.remove('shake-fx'), 400);
+            document.getElementById('log').innerText = TEKSTY.konsolaKrytyczny;
         } else if (val === 'E&d#rc!0') {
-            grantAccess();
+            document.body.classList.add('blood-mode');
+            playSound(55, 'sawtooth', 2, 0.4);
+            document.getElementById('unlocked').style.display = 'block';
+            setTimeout(() => document.getElementById('unlocked').classList.add('open'), 50);
+            document.getElementById('tracklist').innerHTML = TEKSTY.utwory.join("<br>");
+            document.getElementById('log').innerText = "> " + TEKSTY.konsolaSukces;
         } else {
             playSound(40, 'square', 0.5);
-            addLog("BŁĄD: ODMOWA DOSTĘPU.");
+            document.getElementById('log').innerText = "> " + TEKSTY.konsolaBlad;
         }
-        document.getElementById('cmd').value = '';
     }
 
-    function addLog(m) { document.getElementById('log').innerText = "> " + m; }
+    let gScore = 0, bHP = 100, isInf = false, gInt = null, bInt = null;
+    const hints = ["E&", "d#", "rc", "!0"];
 
-    function grantAccess() {
-        document.body.classList.add('blood-mode');
-        playSound(55, 'sawtooth', 3, 0.4);
-        document.getElementById('cmd').disabled = true;
-        const arc = document.getElementById('unlocked');
-        arc.style.display = 'block';
-        setTimeout(() => arc.classList.add('open'), 50);
+    function openGame() {
+        clearInterval(gInt); clearInterval(bInt);
+        const stage = document.getElementById('game-stage');
+        stage.innerHTML = "";
+        document.getElementById('win-msg').style.display = 'none';
+        document.getElementById('game-overlay').style.display = 'flex';
+        gScore = 0; bHP = 100;
         
-        const songs = ["Diss Na Marceline", "Się Spuściłem", "Ona mówi że Ble", "Zaczerpnij Powietrza", "Ona mówi na mnie LightSaber", "Pale Blanta", "Nie Mam Zamiaru w to już dłużej GRAĆ"];
-        document.getElementById('tracklist').innerHTML = songs.map(t => `<div style="padding:5px 0; border-bottom:1px solid rgba(0,255,100,0.1); font-size:10px;">[PLIK]: ${t}</div>`).join('');
-        
-        document.getElementById('core-logs').innerHTML = `> RDZEŃ: PRZEJĘTY<br>> STATUS: KONTROLA<br>> PROJEKT: B_E_L_O_W_Z_E_R_O<br>> SYNCHRONIZACJA: 14.04.2026`;
+        if(isInf) {
+            document.getElementById('game-stats').innerText = TEKSTY.graTrybInf;
+            gInt = setInterval(spawnBit, 600);
+        } else {
+            document.getElementById('game-stats').innerText = TEKSTY.graBitInfo + "0/15";
+            gInt = setInterval(spawnBit, 800);
+        }
     }
 
-    function checkLockout() {
-        const lock = localStorage.getItem('pspmwe_lock_v2');
-        if (lock && Date.now() < lock) document.getElementById('cmd').disabled = true;
+    function closeGame() { 
+        document.getElementById('game-overlay').style.display = 'none'; 
+        clearInterval(gInt); clearInterval(bInt); 
     }
 
-    document.getElementById('cmd').addEventListener('keypress', (e) => { if(e.key === 'Enter') execute(); });
+    function spawnBit() {
+        const stage = document.getElementById('game-stage');
+        if (gScore < 15 || isInf) {
+            const bit = document.createElement('div');
+            bit.className = 'bit';
+            bit.innerText = gScore % 4 === 0 ? "HASŁO_" + hints[Math.floor(Math.random()*4)] : "DATA_RAW";
+            bit.style.left = Math.random() * 80 + 5 + "%"; 
+            bit.style.top = Math.random() * 80 + 5 + "%";
+            bit.onclick = (e) => {
+                e.stopPropagation();
+                gScore++; playSound(300 + (gScore*10), 'sine', 0.1); bit.remove();
+                if(!isInf) {
+                    document.getElementById('game-stats').innerText = TEKSTY.graBitInfo + gScore + "/15";
+                    if(gScore === 15) spawnBoss();
+                }
+            };
+            stage.appendChild(bit);
+            setTimeout(() => { if(bit.parentNode) bit.remove(); }, isInf ? 800 : 2000);
+        }
+    }
+
+    function spawnBoss() {
+        clearInterval(gInt);
+        const stage = document.getElementById('game-stage');
+        stage.innerHTML = "";
+        const boss = document.createElement('div');
+        boss.className = 'boss';
+        boss.innerHTML = `<span>${TEKSTY.bossNazwa}</span><div class="hp-bar"><div id="hp-f" class="hp-fill" style="width:100%"></div></div>`;
+        stage.appendChild(boss);
+        const move = () => { boss.style.left = Math.random()*70+5+"%"; boss.style.top = Math.random()*70+5+"%"; playSound(100, 'square', 0.05, 0.02); };
+        move(); bInt = setInterval(move, 1100);
+        boss.onclick = (e) => {
+            e.stopPropagation();
+            bHP -= 10; playSound(80, 'sawtooth', 0.1, 0.4);
+            document.getElementById('hp-f').style.width = bHP + "%";
+            if(bHP <= 0) {
+                clearInterval(bInt);
+                document.getElementById('win-msg').style.display = 'flex';
+                playSound(600, 'sine', 1);
+            }
+        };
+    }
+
+    function continueInfinite() {
+        document.getElementById('win-msg').style.display = 'none';
+        isInf = true; 
+        document.getElementById('game-stage').innerHTML = "";
+        document.getElementById('game-stats').innerText = TEKSTY.graTrybInf;
+        gInt = setInterval(spawnBit, 500);
+    }
 </script>
 </body>
 </html>
