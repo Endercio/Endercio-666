@@ -59,6 +59,206 @@
         .shake-fx { animation: shake 0.1s infinite !important; }
         @keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(5px, 5px); } 50% { transform: translate(-5px, -5px); } 100% { transform: translate(0,0); } }
 
+
+
+        /* EKRAN PRZERWY KONSERWACYJNEJ — cała właściwa strona zostaje pod spodem */
+        #maintenance-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 25000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+            overflow-y: auto;
+            background:
+                radial-gradient(circle at 50% 35%, rgba(0, 255, 102, 0.08), transparent 38%),
+                linear-gradient(rgba(0, 255, 102, 0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 102, 0.018) 1px, transparent 1px),
+                #020202;
+            background-size: auto, 38px 38px, 38px 38px, auto;
+        }
+
+        #maintenance-screen::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.14;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0,
+                transparent 2px,
+                rgba(0, 0, 0, 0.85) 3px
+            );
+        }
+
+        .maintenance-shell {
+            position: relative;
+            width: min(980px, 100%);
+            text-align: center;
+            padding: clamp(28px, 5vw, 58px);
+            border: 1px solid var(--glow);
+            background: rgba(0, 5, 2, 0.91);
+            box-shadow: 0 0 55px rgba(0, 255, 102, 0.09), inset 0 0 45px rgba(0, 255, 102, 0.035);
+        }
+
+        .maintenance-shell::before,
+        .maintenance-shell::after {
+            content: '';
+            position: absolute;
+            width: 46px;
+            height: 46px;
+            pointer-events: none;
+        }
+        .maintenance-shell::before { top: -1px; left: -1px; border-top: 4px solid var(--glow); border-left: 4px solid var(--glow); }
+        .maintenance-shell::after { right: -1px; bottom: -1px; border-right: 4px solid var(--glow); border-bottom: 4px solid var(--glow); }
+
+        .maintenance-code {
+            margin-bottom: 18px;
+            font-size: 11px;
+            letter-spacing: 4px;
+            opacity: 0.58;
+        }
+
+        .maintenance-title {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            font-size: clamp(35px, 7vw, 82px);
+            line-height: 0.95;
+            letter-spacing: clamp(4px, 1.1vw, 13px);
+            text-shadow: 0 0 18px var(--glow);
+            animation: maintenancePulse 2.8s ease-in-out infinite;
+        }
+
+        .maintenance-title::before,
+        .maintenance-title::after {
+            content: attr(data-text);
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .maintenance-title::before { transform: translate(2px, 0); color: #fff; }
+        .maintenance-title::after { transform: translate(-2px, 0); color: var(--glow); }
+        .maintenance-title:hover::before,
+        .maintenance-title:hover::after { animation: maintenanceGlitch 0.22s steps(2, end) 2; }
+
+        @keyframes maintenancePulse {
+            0%, 100% { opacity: 0.86; filter: brightness(0.92); }
+            50% { opacity: 1; filter: brightness(1.22); }
+        }
+        @keyframes maintenanceGlitch {
+            0% { opacity: 0.35; clip-path: inset(8% 0 68% 0); }
+            50% { opacity: 0.55; clip-path: inset(58% 0 13% 0); }
+            100% { opacity: 0; clip-path: inset(0); }
+        }
+
+        .maintenance-subtitle {
+            margin: 22px auto 30px;
+            font-size: clamp(10px, 1.4vw, 13px);
+            line-height: 1.8;
+            letter-spacing: 5px;
+            opacity: 0.64;
+        }
+
+        .maintenance-info {
+            display: none;
+            width: min(760px, 100%);
+            margin: 28px auto 0;
+            padding: clamp(20px, 4vw, 34px);
+            text-align: left;
+            border: 1px solid var(--glow);
+            background: rgba(0, 0, 0, 0.88);
+            box-shadow: inset 0 0 30px rgba(0, 255, 102, 0.035);
+        }
+        .maintenance-info.open { display: block; animation: maintenanceReveal 0.35s ease both; }
+        @keyframes maintenanceReveal {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .maintenance-info h2 {
+            margin-bottom: 16px;
+            font-size: clamp(17px, 3vw, 23px);
+            letter-spacing: 4px;
+        }
+        .maintenance-info p {
+            margin: 0 0 15px;
+            color: #d8ffe7;
+            font-size: clamp(12px, 1.8vw, 15px);
+            line-height: 1.75;
+        }
+        .maintenance-info strong { color: var(--glow); }
+
+        .countdown-label {
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px dashed rgba(0, 255, 102, 0.45);
+            text-align: center;
+            font-size: 10px;
+            letter-spacing: 3px;
+            opacity: 0.68;
+        }
+
+        .maintenance-countdown {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin: 15px auto 12px;
+        }
+        .countdown-unit {
+            min-width: 0;
+            padding: 14px 8px 11px;
+            border: 1px solid rgba(0, 255, 102, 0.55);
+            background: rgba(0, 255, 102, 0.025);
+            text-align: center;
+        }
+        .countdown-value {
+            display: block;
+            overflow: hidden;
+            font-size: clamp(24px, 5vw, 43px);
+            line-height: 1;
+            letter-spacing: 2px;
+            text-shadow: 0 0 12px var(--glow);
+        }
+        .countdown-name {
+            display: block;
+            margin-top: 9px;
+            font-size: clamp(7px, 1.2vw, 10px);
+            letter-spacing: 2px;
+            opacity: 0.58;
+        }
+        #maintenance-end-label {
+            text-align: center;
+            font-size: 9px;
+            line-height: 1.6;
+            letter-spacing: 2px;
+            opacity: 0.46;
+        }
+        #maintenance-expired {
+            display: none;
+            margin-top: 12px;
+            text-align: center;
+            font-size: 10px;
+            letter-spacing: 3px;
+        }
+
+        .maintenance-close-row { margin-top: 22px; text-align: center; }
+
+        @media (max-width: 600px) {
+            #maintenance-screen { align-items: flex-start; padding: 16px; }
+            .maintenance-shell { margin: auto 0; padding: 30px 17px; }
+            .maintenance-title { overflow-wrap: anywhere; }
+            .maintenance-subtitle { letter-spacing: 2px; }
+            .maintenance-info { padding: 20px 15px; }
+            .maintenance-countdown { gap: 5px; }
+            .countdown-unit { padding: 11px 3px 9px; }
+            .countdown-value { letter-spacing: 0; }
+            .countdown-name { letter-spacing: 1px; }
+        }
+
         /* TYLKO NA TELEFON (Fixy mobilne) */
         @media (max-width: 768px) {
             #txt-boot-title { font-size: 24px; letter-spacing: 8px; }
@@ -76,6 +276,39 @@
 <body>
 
 <div id="cursor"></div>
+
+<div id="maintenance-screen" aria-labelledby="maintenance-main-title">
+    <main class="maintenance-shell">
+        <div class="maintenance-code">[ SYSTEM_STATUS: MAINTENANCE_MODE ]</div>
+        <h1 id="maintenance-main-title" class="maintenance-title" data-text="PRZERWA KONSERWACYJNA">PRZERWA KONSERWACYJNA</h1>
+        <p class="maintenance-subtitle">PROTOKÓŁ ENDERCIO // TRWA PRZEBUDOWA SYSTEMU</p>
+
+        <button id="maintenance-info-button" class="btn" type="button" aria-expanded="false" aria-controls="maintenance-info" onclick="toggleMaintenanceInfo()">[ O CO CHODZI? ]</button>
+
+        <section id="maintenance-info" class="maintenance-info" aria-hidden="true">
+            <h2>> KOMUNIKAT OD OPERATORA</h2>
+            <p>Siemanko! Jeśli to widzisz, znaczy, że <strong>Endercio cię jeszcze obchodzi.</strong></p>
+            <p>Ale o co chodzi z tą przerwą konserwacyjną? Endercio jest blisko wydania swojej EP-ki — wiemy, szybko i sprawnie mu to idzie...</p>
+            <p>Ta strona przejdzie <strong>stuprocentową przebudowę</strong>. Pojawi się więcej rzeczy do odkrycia, snippety, a nawet całe ukryte piosenki i wiele więcej.</p>
+            <p>Czekaj cierpliwie i sprawdzaj tę stronę jak najczęściej. System wróci, gdy będzie gotowy.</p>
+
+            <div class="countdown-label">SZACOWANY CZAS DO ZAKOŃCZENIA PRAC</div>
+            <div class="maintenance-countdown" aria-label="Odliczanie do przewidywanego zakończenia prac">
+                <div class="countdown-unit"><span id="countdown-days" class="countdown-value">00</span><span class="countdown-name">DNI</span></div>
+                <div class="countdown-unit"><span id="countdown-hours" class="countdown-value">24</span><span class="countdown-name">GODZ.</span></div>
+                <div class="countdown-unit"><span id="countdown-minutes" class="countdown-value">00</span><span class="countdown-name">MIN.</span></div>
+                <div class="countdown-unit"><span id="countdown-seconds" class="countdown-value">00</span><span class="countdown-name">SEK.</span></div>
+            </div>
+            <div id="maintenance-end-label"></div>
+            <div id="maintenance-expired">[ LICZNIK ZAKOŃCZONY // PRACE NADAL TRWAJĄ ]</div>
+
+            <div class="maintenance-close-row">
+                <button class="btn" type="button" onclick="toggleMaintenanceInfo()">[ ZAMKNIJ KOMUNIKAT ]</button>
+            </div>
+        </section>
+    </main>
+</div>
+
 <div class="crt-overlay"></div>
 <div class="scanline"></div>
 
@@ -135,6 +368,58 @@
 </div>
 
 <script>
+
+    // PRZERWA KONSERWACYJNA
+    // Stała data końcowa sprawia, że każdy odwiedzający widzi dokładnie ten sam licznik.
+    // Zmień tę jedną wartość, aby ustawić nowy termin lub później usuń ekran maintenance-screen.
+    const MAINTENANCE_END = new Date('2026-07-31T02:35:00+02:00').getTime();
+
+    function toggleMaintenanceInfo() {
+        const info = document.getElementById('maintenance-info');
+        const button = document.getElementById('maintenance-info-button');
+        const isOpen = info.classList.toggle('open');
+        info.setAttribute('aria-hidden', String(!isOpen));
+        button.setAttribute('aria-expanded', String(isOpen));
+        button.innerText = isOpen ? '[ UKRYJ KOMUNIKAT ]' : '[ O CO CHODZI? ]';
+        if (typeof playSound === 'function') playSound(isOpen ? 240 : 150, 'triangle', 0.1, 0.04);
+    }
+
+    function padMaintenanceNumber(value) {
+        return String(value).padStart(2, '0');
+    }
+
+    function updateMaintenanceCountdown() {
+        const now = Date.now();
+        const distance = Math.max(0, MAINTENANCE_END - now);
+        const days = Math.floor(distance / 86400000);
+        const hours = Math.floor((distance % 86400000) / 3600000);
+        const minutes = Math.floor((distance % 3600000) / 60000);
+        const seconds = Math.floor((distance % 60000) / 1000);
+
+        document.getElementById('countdown-days').innerText = padMaintenanceNumber(days);
+        document.getElementById('countdown-hours').innerText = padMaintenanceNumber(hours);
+        document.getElementById('countdown-minutes').innerText = padMaintenanceNumber(minutes);
+        document.getElementById('countdown-seconds').innerText = padMaintenanceNumber(seconds);
+
+        if (distance <= 0) {
+            document.getElementById('maintenance-expired').style.display = 'block';
+        }
+    }
+
+    const maintenanceEndDate = new Date(MAINTENANCE_END);
+    document.getElementById('maintenance-end-label').innerText =
+        'ORIENTACYJNY TERMIN: ' + maintenanceEndDate.toLocaleString('pl-PL', {
+            timeZone: 'Europe/Warsaw',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    updateMaintenanceCountdown();
+    setInterval(updateMaintenanceCountdown, 1000);
+
+
     const TEKSTY = {
         bootTytul: "PROTOKÓŁ_ENDERCIO",
         bootPodtytul: "TERMINAL",
@@ -359,4 +644,3 @@
 </script>
 </body>
 </html>
-
