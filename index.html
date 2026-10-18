@@ -1,82 +1,644 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>??? // 2026</title>
-    <style>
-        :root { --glow: #00ff66; --bg: #020202; }
-        * { margin:0; padding:0; box-sizing:border-box; cursor: none !important; }
-        body { background: var(--bg); color: var(--glow); font-family: "Courier New", monospace; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        
-        #endercio-final-screen {
-            --timer-green: #a4ffc2;
-            position: fixed;
-            inset: 0;
-            z-index: 2147483647;
-            display: grid;
-            place-items: center;
-            width: 100%;
-            height: 100%;
-            min-height: 100svh;
-            padding: clamp(14px, 4vw, 52px);
-            overflow: hidden;
-            color: var(--timer-green);
-            background: radial-gradient(ellipse at 50% 48%, rgba(0, 255, 110, .13), transparent 60%), #010302;
-        }
-        .timer-container {
-            text-align: center;
-            border: 1px solid var(--timer-green);
-            padding: 40px;
-            background: rgba(0, 10, 5, 0.95);
-            box-shadow: 0 0 50px rgba(0, 255, 110, 0.2);
-        }
-        .timer-title {
-            font-size: 14px;
-            letter-spacing: 6px;
-            margin-bottom: 20px;
-            opacity: 0.7;
-        }
-        #countdown {
-            font-size: clamp(30px, 8vw, 70px);
-            font-weight: bold;
-            letter-spacing: 4px;
-            text-shadow: 0 0 20px var(--timer-green);
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#020604">
+  <title></title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Courier New", monospace;
+      background: #020604;
+      color: #a4ffc2;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      min-width: 280px;
+      min-height: 100%;
+      margin: 0;
+    }
+
+    #endercio-final-screen {
+      --timer-green: #a4ffc2;
+      position: fixed;
+      inset: 0;
+      isolation: isolate;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+      min-height: 100svh;
+      padding: clamp(14px, 4vw, 52px);
+      overflow: hidden;
+      color: var(--timer-green);
+      background:
+        radial-gradient(ellipse at 50% 48%, rgba(0, 255, 110, .13), transparent 30%),
+        radial-gradient(ellipse at 15% 90%, rgba(0, 150, 65, .10), transparent 33%),
+        radial-gradient(ellipse at 88% 8%, rgba(80, 255, 150, .08), transparent 27%),
+        #020604;
+      cursor: default;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #endercio-final-screen::before,
+    #endercio-final-screen::after {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    #endercio-final-screen::before {
+      opacity: .24;
+      background-image:
+        linear-gradient(rgba(132, 255, 176, .055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(132, 255, 176, .055) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse at center, #000 10%, transparent 72%);
+      animation: timerGridDrift 24s linear infinite;
+    }
+
+    #endercio-final-screen::after {
+      inset: 0;
+      z-index: 5;
+      opacity: .15;
+      background: repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(0, 0, 0, .7) 4px);
+    }
+
+    .timer-atmosphere {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .timer-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(78vw, 850px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 255, 105, .13), rgba(0, 255, 105, .04) 38%, transparent 70%);
+      filter: blur(20px);
+      transform: translate(-50%, -50%);
+      animation: timerGlowBreathe 6s ease-in-out infinite;
+    }
+
+    .timer-orbit {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(92vw, 1000px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(136, 255, 180, .08);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: timerOrbit 70s linear infinite;
+    }
+
+    .timer-orbit::before,
+    .timer-orbit::after {
+      content: "";
+      position: absolute;
+      inset: 7%;
+      border: 1px dashed rgba(136, 255, 180, .09);
+      border-radius: 50%;
+    }
+
+    .timer-orbit::after {
+      inset: 19%;
+      border-style: solid;
+      border-color: rgba(136, 255, 180, .045);
+    }
+
+    .timer-particle {
+      position: absolute;
+      bottom: -12px;
+      left: var(--x);
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: #b8ffd0;
+      box-shadow: 0 0 12px 2px rgba(106, 255, 155, .48);
+      opacity: 0;
+      animation: timerParticleRise var(--duration) linear var(--delay) infinite;
+    }
+
+    .timer-frame {
+      position: relative;
+      z-index: 2;
+      width: min(890px, 100%);
+      padding: clamp(16px, 4.7vw, 48px);
+      overflow: hidden;
+      border: 1px solid rgba(144, 255, 183, .24);
+      background: linear-gradient(135deg, rgba(4, 18, 10, .74), rgba(2, 8, 5, .6) 58%, rgba(4, 16, 9, .76));
+      box-shadow: 0 24px 100px rgba(0, 0, 0, .48), 0 0 75px rgba(0, 255, 102, .035), inset 0 0 70px rgba(0, 255, 102, .025);
+      backdrop-filter: blur(9px);
+      -webkit-backdrop-filter: blur(9px);
+      animation: timerFrameEnter 1.25s cubic-bezier(.18, .76, .22, 1) both;
+    }
+
+    .timer-frame::before,
+    .timer-frame::after {
+      content: "";
+      position: absolute;
+      width: clamp(25px, 5vw, 46px);
+      height: clamp(25px, 5vw, 46px);
+      pointer-events: none;
+    }
+
+    .timer-frame::before {
+      top: 0;
+      left: 0;
+      border-top: 3px solid #b8ffd0;
+      border-left: 3px solid #b8ffd0;
+      filter: drop-shadow(0 0 7px rgba(119, 255, 165, .55));
+    }
+
+    .timer-frame::after {
+      right: 0;
+      bottom: 0;
+      border-right: 3px solid #b8ffd0;
+      border-bottom: 3px solid #b8ffd0;
+      filter: drop-shadow(0 0 7px rgba(119, 255, 165, .55));
+    }
+
+    .timer-display {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: clamp(4px, 1.3vw, 14px);
+      width: 100%;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+    }
+
+    .timer-number {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      padding: clamp(10px, 2.8vw, 26px) 2px;
+      border: 1px solid rgba(148, 255, 185, .17);
+      background: linear-gradient(180deg, rgba(124, 255, 166, .055), rgba(0, 0, 0, .13));
+      color: #dbffe6;
+      font-size: clamp(30px, 8.7vw, 88px);
+      font-weight: 700;
+      line-height: .95;
+      letter-spacing: -.065em;
+      text-shadow: 0 0 18px rgba(141, 255, 182, .22), 0 0 50px rgba(0, 255, 102, .08);
+      box-shadow: inset 0 0 22px rgba(0, 255, 102, .018);
+      animation: timerDigitBreath 4.8s ease-in-out infinite;
+      transition: color .25s ease, text-shadow .25s ease;
+    }
+
+    .timer-number:nth-of-type(3) { animation-delay: -.9s; }
+    .timer-number:nth-of-type(5) { animation-delay: -1.8s; }
+    .timer-number:nth-of-type(7) { animation-delay: -2.7s; }
+
+    .timer-separator {
+      display: block;
+      color: #79d99a;
+      font-size: clamp(20px, 4vw, 43px);
+      font-weight: 400;
+      line-height: 1;
+      transform: translateY(-.04em);
+      text-shadow: 0 0 13px rgba(141, 255, 182, .5);
+      animation: timerColonPulse 1s steps(2, jump-none) infinite;
+    }
+
+    .timer-laser {
+      position: absolute;
+      top: -24%;
+      right: 0;
+      left: 0;
+      height: 24%;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent, rgba(114, 255, 158, .075), rgba(114, 255, 158, .13), transparent);
+      animation: timerScan 7.5s linear infinite;
+    }
+
+    @keyframes timerFrameEnter {
+      from { opacity: 0; transform: translateY(16px) scale(.985); filter: blur(8px); }
+      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+
+    @keyframes timerGridDrift {
+      from { background-position: 0 0, 0 0; }
+      to { background-position: 48px 48px, -48px 48px; }
+    }
+
+    @keyframes timerGlowBreathe {
+      0%, 100% { opacity: .55; transform: translate(-50%, -50%) scale(.86); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+    }
+
+    @keyframes timerOrbit {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    @keyframes timerParticleRise {
+      0% { transform: translate3d(0, 0, 0); opacity: 0; }
+      13% { opacity: .6; }
+      80% { opacity: .2; }
+      100% { transform: translate3d(25px, -110vh, 0); opacity: 0; }
+    }
+
+    @keyframes timerDigitBreath {
+      0%, 100% { filter: brightness(.92); box-shadow: inset 0 0 22px rgba(0, 255, 102, .018); }
+      50% { filter: brightness(1.1); box-shadow: inset 0 0 30px rgba(0, 255, 102, .045), 0 0 18px rgba(0, 255, 102, .025); }
+    }
+
+    @keyframes timerColonPulse {
+      0%, 44%, 100% { opacity: .98; }
+      45%, 90% { opacity: .34; }
+    }
+
+    @keyframes timerScan {
+      0%, 6% { transform: translateY(0); opacity: 0; }
+      12% { opacity: .85; }
+      78% { opacity: .85; }
+      100% { transform: translateY(650%); opacity: 0; }
+    }
+
+    #launch-sequence {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      isolation: isolate;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: #010302;
+      animation: launchCurtainExit 1s cubic-bezier(.78, 0, .18, 1) 2.9s forwards;
+    }
+
+    #launch-sequence::before,
+    #launch-sequence::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    #launch-sequence::before {
+      z-index: 6;
+      opacity: .24;
+      background: repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(0, 0, 0, .72) 3px);
+    }
+
+    #launch-sequence::after {
+      z-index: 7;
+      opacity: .7;
+      background: radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, .3) 65%, #000 110%);
+    }
+
+    .launch-field {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(190, 255, 212, .2), transparent 4%),
+        radial-gradient(ellipse at center, rgba(0, 110, 52, .28), transparent 52%),
+        #010302;
+      animation: launchFieldPulse 2.9s ease-out both;
+    }
+
+    .launch-grid {
+      position: absolute;
+      inset: -20%;
+      opacity: .17;
+      background-image: linear-gradient(rgba(127, 255, 168, .09) 1px, transparent 1px), linear-gradient(90deg, rgba(127, 255, 168, .09) 1px, transparent 1px);
+      background-size: 52px 52px;
+      mask-image: radial-gradient(ellipse at center, #000 6%, transparent 72%);
+      animation: launchGridLock 2.8s cubic-bezier(.2, .7, .2, 1) both;
+    }
+
+    .launch-aura {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(80vmin, 880px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(222, 255, 234, .72) 0, rgba(101, 255, 151, .22) 3%, rgba(0, 255, 102, .09) 16%, transparent 68%);
+      filter: blur(4px);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(.08);
+      animation: launchAuraBloom 2.25s cubic-bezier(.12, .66, .15, 1) .28s both;
+    }
+
+    .launch-rings {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 2;
+      width: 1px;
+      height: 1px;
+    }
+
+    .launch-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(18vmin, 180px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(157, 255, 190, .78);
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(0, 255, 105, .18), inset 0 0 20px rgba(0, 255, 105, .1);
+      transform: translate(-50%, -50%) scale(.015) rotate(0deg);
+      animation: launchRingExpand 1.9s cubic-bezier(.12, .66, .15, 1) var(--delay, 0s) both;
+    }
+
+    .launch-ring:nth-child(2) { border-style: dashed; border-color: rgba(116, 255, 164, .54); }
+    .launch-ring:nth-child(3) { border-color: rgba(226, 255, 236, .9); border-width: 2px; }
+    .launch-ring:nth-child(4) { border-style: dotted; border-color: rgba(0, 255, 102, .7); }
+
+    .launch-core {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 4;
+      width: clamp(8px, 1.4vmin, 15px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #f2fff6;
+      box-shadow: 0 0 10px 4px #c6ffda, 0 0 42px 18px rgba(0, 255, 102, .8), 0 0 150px 58px rgba(0, 255, 102, .24);
+      transform: translate(-50%, -50%) scale(.001);
+      animation: launchCoreIgnite 1.75s cubic-bezier(.16, .8, .1, 1) .12s both;
+    }
+
+    .launch-core::before,
+    .launch-core::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border: 1px solid rgba(220, 255, 230, .9);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .launch-core::before { width: 5vmin; aspect-ratio: 1; animation: launchCoreOrbit 1s ease-out .2s both; }
+    .launch-core::after { width: 15vmin; aspect-ratio: 1; border-color: rgba(85, 255, 145, .46); animation: launchCoreOrbit 1.45s ease-out .25s both; }
+
+    .launch-rays {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .launch-ray {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 150vw;
+      height: 1px;
+      transform-origin: center;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 102, .1) 25%, rgba(210, 255, 224, .98) 50%, rgba(0, 255, 102, .1) 75%, transparent);
+      box-shadow: 0 0 12px rgba(111, 255, 160, .36);
+      opacity: 0;
+      animation: launchRayBurst 1.35s cubic-bezier(.16, .72, .15, 1) var(--delay, 0s) both;
+    }
+
+    .launch-sweep {
+      position: absolute;
+      top: -25%;
+      bottom: -25%;
+      left: 50%;
+      z-index: 5;
+      width: 3px;
+      background: linear-gradient(transparent, rgba(150, 255, 181, .22), #effff4, rgba(0, 255, 102, .32), transparent);
+      box-shadow: 0 0 28px 6px rgba(0, 255, 102, .34);
+      transform: translateX(-50%) translateX(-60vw);
+      opacity: 0;
+      animation: launchSweepAcross 1.45s cubic-bezier(.7, 0, .2, 1) .62s both;
+    }
+
+    .launch-flash {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(circle at center, rgba(245, 255, 248, .98) 0, rgba(104, 255, 154, .48) 2%, rgba(0, 255, 102, .14) 14%, transparent 48%);
+      animation: launchShockwave 1.25s cubic-bezier(.2, .7, .15, 1) .8s both;
+    }
+
+    .launch-fragment {
+      position: absolute;
+      top: var(--y);
+      left: var(--x);
+      z-index: 3;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #e6ffed;
+      box-shadow: 0 0 10px 3px rgba(104, 255, 151, .82);
+      opacity: 0;
+      animation: launchAbsorb 1.4s cubic-bezier(.38, 0, .15, 1) var(--delay, 0s) both;
+    }
+
+    @keyframes launchCurtainExit {
+      0% { opacity: 1; filter: brightness(1); }
+      42% { opacity: 1; filter: brightness(1.8); }
+      72% { opacity: .72; filter: brightness(1.35); }
+      100% { opacity: 0; visibility: hidden; pointer-events: none; }
+    }
+
+    @keyframes launchFieldPulse {
+      0% { opacity: .2; filter: brightness(.5); transform: scale(.95); }
+      28% { opacity: 1; filter: brightness(1.8); }
+      58% { opacity: .8; filter: brightness(1.15); transform: scale(1.02); }
+      100% { opacity: .45; filter: brightness(.8); transform: scale(1.08); }
+    }
+
+    @keyframes launchGridLock {
+      0% { opacity: 0; transform: scale(1.18) rotate(-4deg); }
+      35% { opacity: .28; }
+      65% { opacity: .16; transform: scale(1) rotate(0deg); }
+      100% { opacity: .08; transform: scale(.96) rotate(1deg); }
+    }
+
+    @keyframes launchAuraBloom {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(.08); }
+      24% { opacity: .9; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.35); }
+    }
+
+    @keyframes launchRingExpand {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(.015) rotate(0deg); }
+      14% { opacity: 1; }
+      58% { opacity: .62; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(10) rotate(180deg); }
+    }
+
+    @keyframes launchCoreIgnite {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(.001); }
+      28% { opacity: 1; transform: translate(-50%, -50%) scale(1.8); }
+      44% { transform: translate(-50%, -50%) scale(.65); }
+      58% { transform: translate(-50%, -50%) scale(1.25); }
+      72% { opacity: 1; transform: translate(-50%, -50%) scale(.5); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(.001); }
+    }
+
+    @keyframes launchCoreOrbit {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(.06); }
+      36% { opacity: .9; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(4.8); }
+    }
+
+    @keyframes launchRayBurst {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--r)) scaleX(.001); }
+      35% { opacity: .82; transform: translate(-50%, -50%) rotate(var(--r)) scaleX(.9); }
+      55% { opacity: .48; transform: translate(-50%, -50%) rotate(var(--r)) scaleX(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--r)) scaleX(.01); }
+    }
+
+    @keyframes launchSweepAcross {
+      0% { opacity: 0; transform: translateX(-50%) translateX(-60vw); }
+      28% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-50%) translateX(60vw); }
+    }
+
+    @keyframes launchShockwave {
+      0% { opacity: 0; transform: scale(.3); }
+      9% { opacity: 1; }
+      27% { opacity: .24; transform: scale(1.5); }
+      100% { opacity: 0; transform: scale(2.3); }
+    }
+
+    @keyframes launchAbsorb {
+      0% { opacity: 0; transform: translate3d(0, 0, 0) scale(.4); }
+      18% { opacity: 1; }
+      82% { opacity: .8; }
+      100% { opacity: 0; transform: translate3d(var(--dx), var(--dy), 0) scale(.1); }
+    }
+
+    @media (max-width: 440px) {
+      #endercio-final-screen { padding: 10px; }
+      .timer-frame { padding: 15px 9px; }
+      .timer-display { gap: clamp(3px, 1vw, 6px); }
+      .timer-number { padding: 13px 1px; font-size: clamp(25px, 8.4vw, 37px); letter-spacing: -.075em; }
+      .timer-separator { font-size: clamp(15px, 4.2vw, 20px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .timer-frame,
+      .timer-orbit,
+      .timer-glow,
+      .timer-particle,
+      .timer-number,
+      .timer-separator,
+      .timer-laser,
+      #endercio-final-screen::before { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+      #launch-sequence { display: none !important; }
+    }
+  </style>
 </head>
 <body>
-    <div id="endercio-final-screen">
-        <div class="timer-container">
-            <div class="timer-title">SYSTEM OFFLINE // TIME REMAINING</div>
-            <div id="countdown">00:00:00:00</div>
-        </div>
+  <main id="endercio-final-screen" role="timer" aria-label="Odliczanie">
+    <div class="timer-atmosphere" aria-hidden="true">
+      <div class="timer-glow"></div>
+      <div class="timer-orbit"></div>
+      <i class="timer-particle" style="--x: 4%; --duration: 18s; --delay: -7s"></i>
+      <i class="timer-particle" style="--x: 15%; --duration: 22s; --delay: -16s"></i>
+      <i class="timer-particle" style="--x: 27%; --duration: 16s; --delay: -3s"></i>
+      <i class="timer-particle" style="--x: 39%; --duration: 20s; --delay: -12s"></i>
+      <i class="timer-particle" style="--x: 51%; --duration: 17s; --delay: -9s"></i>
+      <i class="timer-particle" style="--x: 65%; --duration: 21s; --delay: -18s"></i>
+      <i class="timer-particle" style="--x: 78%; --duration: 15s; --delay: -5s"></i>
+      <i class="timer-particle" style="--x: 91%; --duration: 19s; --delay: -13s"></i>
     </div>
+    <section class="timer-frame">
+      <div class="timer-display" aria-label="Dni, godziny, minuty i sekundy">
+        <span class="timer-number" id="timer-days">00</span>
+        <span class="timer-separator" aria-hidden="true">:</span>
+        <span class="timer-number" id="timer-hours">00</span>
+        <span class="timer-separator" aria-hidden="true">:</span>
+        <span class="timer-number" id="timer-minutes">00</span>
+        <span class="timer-separator" aria-hidden="true">:</span>
+        <span class="timer-number" id="timer-seconds">00</span>
+      </div>
+      <div class="timer-laser" aria-hidden="true"></div>
+    </section>
+  </main>
+  <div id="launch-sequence" aria-hidden="true">
+    <div class="launch-field"></div>
+    <div class="launch-grid"></div>
+    <div class="launch-aura"></div>
+    <div class="launch-rays">
+      <i class="launch-ray" style="--r:0deg;--delay:.02s"></i>
+      <i class="launch-ray" style="--r:15deg;--delay:.05s"></i>
+      <i class="launch-ray" style="--r:30deg;--delay:.08s"></i>
+      <i class="launch-ray" style="--r:45deg;--delay:.11s"></i>
+      <i class="launch-ray" style="--r:60deg;--delay:.14s"></i>
+      <i class="launch-ray" style="--r:75deg;--delay:.17s"></i>
+      <i class="launch-ray" style="--r:90deg;--delay:.20s"></i>
+      <i class="launch-ray" style="--r:105deg;--delay:.23s"></i>
+      <i class="launch-ray" style="--r:120deg;--delay:.26s"></i>
+      <i class="launch-ray" style="--r:135deg;--delay:.29s"></i>
+      <i class="launch-ray" style="--r:150deg;--delay:.32s"></i>
+      <i class="launch-ray" style="--r:165deg;--delay:.35s"></i>
+    </div>
+    <div class="launch-rings">
+      <i class="launch-ring" style="--delay:.02s"></i>
+      <i class="launch-ring" style="--delay:.18s"></i>
+      <i class="launch-ring" style="--delay:.34s"></i>
+      <i class="launch-ring" style="--delay:.50s"></i>
+    </div>
+    <div class="launch-core"></div>
+    <div class="launch-sweep"></div>
+    <div class="launch-flash"></div>
+    <i class="launch-fragment" style="--x:5%;--y:9%;--dx:44vw;--dy:40vh;--delay:.02s"></i>
+    <i class="launch-fragment" style="--x:95%;--y:7%;--dx:-44vw;--dy:42vh;--delay:.07s"></i>
+    <i class="launch-fragment" style="--x:2%;--y:88%;--dx:47vw;--dy:-38vh;--delay:.12s"></i>
+    <i class="launch-fragment" style="--x:98%;--y:90%;--dx:-48vw;--dy:-39vh;--delay:.04s"></i>
+    <i class="launch-fragment" style="--x:50%;--y:2%;--dx:0vw;--dy:47vh;--delay:.16s"></i>
+    <i class="launch-fragment" style="--x:50%;--y:98%;--dx:0vw;--dy:-47vh;--delay:.1s"></i>
+    <i class="launch-fragment" style="--x:2%;--y:49%;--dx:48vw;--dy:0vh;--delay:.2s"></i>
+    <i class="launch-fragment" style="--x:98%;--y:51%;--dx:-48vw;--dy:0vh;--delay:.14s"></i>
+    <i class="launch-fragment" style="--x:22%;--y:3%;--dx:28vw;--dy:45vh;--delay:.22s"></i>
+    <i class="launch-fragment" style="--x:78%;--y:96%;--dx:-28vw;--dy:-45vh;--delay:.18s"></i>
+    <i class="launch-fragment" style="--x:82%;--y:4%;--dx:-30vw;--dy:44vh;--delay:.25s"></i>
+    <i class="launch-fragment" style="--x:18%;--y:96%;--dx:31vw;--dy:-44vh;--delay:.21s"></i>
+  </div>
+  <script>
+    document.title = "\u200B";
+    const countdownTarget = new Date("2026-10-31T00:00:00+01:00").getTime();
+    const timerParts = {
+      days: document.getElementById("timer-days"),
+      hours: document.getElementById("timer-hours"),
+      minutes: document.getElementById("timer-minutes"),
+      seconds: document.getElementById("timer-seconds")
+    };
 
-    <script>
-        // Ustaw docelową datę licznika (zmień poniżej w razie potrzeby)
-        const targetDate = new Date("2026-12-31T23:59:59").getTime();
+    function updateCountdown() {
+      const difference = Math.max(0, countdownTarget - Date.now());
+      const values = {
+        days: Math.floor(difference / 86400000),
+        hours: Math.floor((difference % 86400000) / 3600000),
+        minutes: Math.floor((difference % 3600000) / 60000),
+        seconds: Math.floor((difference % 60000) / 1000)
+      };
 
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
+      for (const [unit, value] of Object.entries(values)) {
+        timerParts[unit].textContent = String(value).padStart(2, "0");
+      }
+    }
 
-            if (distance < 0) {
-                document.getElementById("countdown").innerText = "EXPIRED";
-                return;
-            }
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            const pad = (n) => String(n).padStart(2, '0');
-            document.getElementById("countdown").innerText = `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-        }
-
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
-    </script>
+    updateCountdown();
+    window.setInterval(updateCountdown, 1000);
+    window.setTimeout(() => {
+      document.getElementById("launch-sequence")?.remove();
+    }, 4250);
+  </script>
 </body>
 </html>
